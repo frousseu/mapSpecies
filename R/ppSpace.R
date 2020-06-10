@@ -131,6 +131,9 @@ ppSpace <- function(formula,
   ### Construct a brick out of Xorg
   xyXorg <- cbind(coordinates(explanaMesh$X),Xorg)
   Xbrick <- rasterFromXYZ(xyXorg)
+  if(nlayers(Xbrick) == 1){
+    Xbrick <- brick(Xbrick)  
+  }
   names(Xbrick) <- colnames(Xorg)
   
   if(many){
