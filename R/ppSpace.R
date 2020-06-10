@@ -126,7 +126,7 @@ ppSpace <- function(formula,
   ### Organize X so that it follows the formula
   Xorg <- model.matrix(formula,model.frame(formula, 
                                            data = refData, 
-                                           na.action = NULL))[,-1]
+                                           na.action = NULL))[,-1,drop=FALSE]
   
   ### Construct a brick out of Xorg
   xyXorg <- cbind(coordinates(explanaMesh$X),Xorg)
