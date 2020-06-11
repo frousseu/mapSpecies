@@ -76,6 +76,7 @@ ppSpace <- function(formula,
   nsPoints <- length(sPoints)
   nEdges <- explanaMesh$mesh$n
   xy <- coordinates(sPoints)
+  colnames(xy) <- c("x","y") 
 
   #==============
   ### Define SPDE
