@@ -83,7 +83,7 @@ ppSpace <- function(formula,
   #==============
   SPDE <- inla.spde2.pcmatern(mesh=explanaMesh$mesh, alpha=smooth,
                               prior.range=prior.range,
-                              prior.sigma=prior.range)
+                              prior.sigma=prior.sigma)
 
   #==========================
   ### Define response objects
