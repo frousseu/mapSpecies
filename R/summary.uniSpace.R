@@ -34,7 +34,9 @@ summary.uniSpace <- function(object,...){
   
   # Extract the parameters associated to the spatial components
   space <- object$summary.hyperpar
-  rownames(space) <- c("Range", "Stdev")
+  if(!is.null(space)){
+    rownames(space) <- gsub(" for i","",rownames(space)) 
+  }
   
   # Processing time
   time <- object$cpu.used[4]
