@@ -3,8 +3,8 @@
 #'
 #' @description Spatial model for presence-absence data using INLA. This function is essentially a specialized wrapper over \code{inla}
 #'
-#' @param formula A formula that relates the response and some (or all) of the explanatory variables \code{X}. The name of the response variable is the name of the variable in \code{sPointsDF}.
-#' @param sPointsDF A SpatialPointsDataFrame with a vector of 0 and 1 in the data.frame part \code{stack} (or \code{brick}) combining all of the explanatory variables to consider.
+#' @param formula A formula that relates the response and some (or all) of the explanatory variables \code{X}. The name of the response variable is the name of the variable in \code{sPoints}.
+#' @param sPoints A SpatialPointsDataFrame with a vector of 0 and 1 in the data.frame part \code{stack} (or \code{brick}) combining all of the explanatory variables to consider.
 #' @param explanaMesh An object of class \code{explanaMesh}
 #' @param offset A character string defining the explanatory variable in \code{explanaMesh$X} to use as offset.
 #' @param family A character string describing the error distribution to be used when constructing the model. 
@@ -25,7 +25,7 @@
 #' In addition, it includes a series of attributes:
 #' 
 #'	  \item{\code{formula}}{The formula used to construct the model}
-#'	  \item{\code{sPointsDF}}{A \code{SpatialPointDataFrame} object that includes the sample location and associated data of the modelled species.}
+#'	  \item{\code{sPoints}}{A \code{SpatialPointDataFrame} object that includes the sample location and associated data of the modelled species.}
 #'	  \item{\code{XEst}}{A matrix with all the explanatory variables used to construct the model. If there were factors in the original set of explanatory variables \code{X}, in \code{XEst}, they were decomposed into dummy variables. The values in \code{XEst} are the one from the sampled location.}
 #'	  \item{\code{XPred}}{A matrix with all the explanatory variables used to construct the model. If there were factors in the original set of explanatory variables \code{X}, in \code{XPred}, they were decomposed into dummy variables. The values in \code{XPred} were gathered at the mesh edges.}
 #'	  \item{\code{mesh}}{An object of class \code{inla.mesh}. It is the mesh used to construct the model.}
@@ -48,7 +48,7 @@
 #'
 #' @keywords models
 uniSpace <- function(formula, 
-                     sPointsDF,  
+                     sPoints,  
                      explanaMesh,
                      offset = NULL, 
                      family = NULL,
@@ -74,7 +74,7 @@ uniSpace <- function(formula,
   #================
   ### Basic objects
   #================
-  nsmpl <- length(sPointsDF)
+  nsmpl <- length(sPoints)
   nEdges <- explanaMesh$mesh$n
 
   #==============
@@ -89,7 +89,7 @@ uniSpace <- function(formula,
   ### Define response objects
   #==========================
   ### Coordinates use for the estimation
-  xy <- coordinates(sPointsDF)
+  xy <- coordinates(sPoints)
 
   #===========================
   ### Define covariate objects
@@ -106,7 +106,7 @@ uniSpace <- function(formula,
   }
   
   refData <- data.frame(y = 1, refData)
-  colnames(refData)[1] <- names(sPointsDF)
+  colnames(refData)[1] <- names(sPoints)
 
   ### Organize X so that it follows the formula
   Xorg <- model.matrix(formula,model.frame(formula,
@@ -131,7 +131,7 @@ uniSpace <- function(formula,
   locPred <- SpatialPoints(coords = explanaMesh$mesh$loc[,1:2])
 
   prefData <- data.frame(y = 1, explanaMesh$Xmesh)
-  colnames(prefData)[1] <- names(sPointsDF)
+  colnames(prefData)[1] <- names(sPoints)
   
   XPred <- model.matrix(formula,model.frame(formula,
                                             data = prefData,
@@ -157,10 +157,10 @@ uniSpace <- function(formula,
   ### Build stack object for estimation
   #====================================
   ### For estimation
-  resp <- unlist(sPointsDF@data)
+  resp <- unlist(sPoints@data)
   names(resp) <- NULL
   resp <- list(y = resp)
-  names(resp) <- names(sPointsDF)
+  names(resp) <- names(sPoints)
 
   StackEst <- inla.stack(data = resp, A = list(AEst, 1),
                          effects = list(list(i = 1:nEdges),
@@ -169,7 +169,7 @@ uniSpace <- function(formula,
 
   ### For prediction
   respNA <- list(y = NA)
-  names(respNA) <- names(sPointsDF)
+  names(respNA) <- names(sPoints)
 
   StackPred <- inla.stack(data = respNA, A = list(APred, 1),
                           effects = list(list(i = 1:nEdges),
@@ -185,14 +185,14 @@ uniSpace <- function(formula,
   if(is.null(offset)){
     forEffect <- paste(colnames(XPred),collapse = "+")
     
-    formule <- formula(paste(names(sPointsDF) ,
+    formule <- formula(paste(names(sPoints) ,
                              "~ 0 + Intercept +", forEffect,
                              "+ f(i, model=SPDE)"))
   }else{
     forEffect <- paste(colnames(XPred)[colnames(XPred) != offset],
                        collapse = "+")
     
-    formule <- formula(paste(names(sPointsDF) ,
+    formule <- formula(paste(names(sPoints) ,
                              "~ 0 + Intercept +", forEffect,
                              "+offset(",offset,") + f(i, model=SPDE)"))
   }
@@ -210,7 +210,7 @@ uniSpace <- function(formula,
   #===============
   ### add a series of attributes to the result object
   attributes(model) <- list(formula = formula,
-                            sPointsDF = sPointsDF,
+                            sPoints = sPoints,
                             XEst = XEst,
                             XPred = XPred,
                             mesh = explanaMesh$mesh,

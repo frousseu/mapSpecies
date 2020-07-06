@@ -3,7 +3,7 @@
 #' @description Rasterize an expert maps and weight its importance using the samples and their distance to the expert map with a five parameters logistic curve.
 #' 
 #' @param expert A \code{\link[sp]{SpatialPolygons}} or a \code{\link[sp]{SpatialPolygonsDataFrame}} defining the expert map.
-#' @param sPointDF A \code{\link[sp]{SpatialPointsDataFrame}} defining the sampled location with a single variable.
+#' @param sPoints A \code{\link[sp]{SpatialPointsDataFrame}} defining the sampled location with a single variable.
 #' @param raster An object of class \code{RasterLayer}.
 #' @param family This argument defines which reference distribution should be used to estimate the parameter of the logistic curve.
 #' @param link The link function to use if \code{family = "binomial"}. This argument is ignored if \code{family} is not \code{"binomial"}.
@@ -46,7 +46,7 @@
 #' @export
 #' 
 #' @keywords models
-offsetExpert <- function(expert, sPointDF, raster,
+offsetExpert <- function(expert, sPoints, raster,
                          family, link, iniParam = c(upper = 1, 
                                                     lower = 1, 
                                                     rate = 1, 
@@ -65,8 +65,8 @@ offsetExpert <- function(expert, sPointDF, raster,
   #--------------------------------
   # Parameterize the logistic curve
   #--------------------------------
-  resp <- unlist(sPointDF@data)
-  x <- extract(expertDist, sPointDF)
+  resp <- unlist(sPoints@data)
+  x <- extract(expertDist, sPoints)
   
   # Estimate the parameter of the logistic curve
   if(family == "binomial"){
@@ -84,7 +84,7 @@ offsetExpert <- function(expert, sPointDF, raster,
 
   }else{
     # Otherwise
-    y <- unlist(sPointDF@data)
+    y <- unlist(sPoints@data)
     
     # Force parameter variable and parameters in the function environment
     holdEnv <- list(y=y, x=x, iniParam=iniParam)

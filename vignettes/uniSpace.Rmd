@@ -132,7 +132,7 @@ Let's build a logistic model for the presence-absence. Note that, we included th
 What is important to be aware at this point is that `uniSpace` is essentially a specialized wrapper around the `inla` function of the R package `INLA`. As such, all arguments that can be passed to `inla` can be passed to `uniSpace`.
 
 ```{r, warning = FALSE}
-modelLogit <- uniSpace(MEGR ~ ., sPointsDF = MEGR01,
+modelLogit <- uniSpace(MEGR ~ ., sPoints = MEGR01,
                        explanaMesh = explana, family = "binomial",
                        link = "logit", 
                        control.compute = list(waic = TRUE))
@@ -261,7 +261,7 @@ Here, the expert knowledge is included using an offset in the model. Note that t
 form <- MEGR ~ SubsDens + WatrCont + Substrate + Shrub + Topo
 
 # Model
-modelOffset <- uniSpace(form, sPointsDF = MEGR01,
+modelOffset <- uniSpace(form, sPoints = MEGR01,
                         explanaMesh = explanaOffset,
                         offset = "expert",
                         family = "binomial",
