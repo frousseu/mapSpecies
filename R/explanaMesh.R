@@ -79,6 +79,12 @@ explanaMesh <- function(sPoly, mesh, X, verbose = TRUE){
   # Some of this code was borrows from : 
   # https://stackoverflow.com/questions/26652629/extracting-a-value-from-a-raster-for-a-specific-point-based-on-the-closest-cell
   #============================================================
+  
+  # Make sure X is a stack, otherwise extract returns a vector
+  if(nlayers(X)==1){
+    X <- stack(X)  
+  }
+  
   # Extract the points
   pts <- mesh$loc[,1:2]
   
@@ -118,7 +124,7 @@ explanaMesh <- function(sPoly, mesh, X, verbose = TRUE){
   
   # Extract values from X at loc
   locVal <- extract(X, loc)
-  
+
   #==================================================
   # If there are some elements in locVal that are NAs
   #==================================================
