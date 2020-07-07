@@ -4,7 +4,7 @@
 #' @description Spatial model for presence-absence data using INLA. This function is essentially a specialized wrapper over \code{inla}
 #'
 #' @param formula A formula that relates the response and some (or all) of the explanatory variables \code{X}. The name of the response variable is the name of the variable in \code{sPoints}.
-#' @param sPoints A SpatialPointsDataFrame with a vector of 0 and 1 in the data.frame part \code{stack} (or \code{brick}) combining all of the explanatory variables to consider.
+#' @param sPoints A \code{SpatialPointsDataFrame} with the response variable.
 #' @param explanaMesh An object of class \code{explanaMesh}
 #' @param offset A character string defining the explanatory variable in \code{explanaMesh$X} to use as offset.
 #' @param family A character string describing the error distribution to be used when constructing the model. 
@@ -158,7 +158,7 @@ uniSpace <- function(formula,
   ### Build stack object for estimation
   #====================================
   ### For estimation
-  resp <- unlist(sPoints@data)
+  resp <- unlist(sPoints[,nameresp]@data)
   names(resp) <- NULL
   resp <- list(y = resp)
   names(resp) <- nameresp
