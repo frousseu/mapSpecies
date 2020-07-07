@@ -75,6 +75,7 @@ uniSpace <- function(formula,
   ### Basic objects
   #================
   nsmpl <- length(sPoints)
+  nameresp <- all.vars(formula[[2]])
   nEdges <- explanaMesh$mesh$n
 
   #==============
@@ -106,7 +107,7 @@ uniSpace <- function(formula,
   }
   
   refData <- data.frame(y = 1, refData)
-  colnames(refData)[1] <- names(sPoints)
+  colnames(refData)[1] <- nameresp
 
   ### Organize X so that it follows the formula
   Xorg <- model.matrix(formula,model.frame(formula,
@@ -131,7 +132,7 @@ uniSpace <- function(formula,
   locPred <- SpatialPoints(coords = explanaMesh$mesh$loc[,1:2])
 
   prefData <- data.frame(y = 1, explanaMesh$Xmesh)
-  colnames(prefData)[1] <- names(sPoints)
+  colnames(prefData)[1] <- nameresp
   
   XPred <- model.matrix(formula,model.frame(formula,
                                             data = prefData,
@@ -160,7 +161,7 @@ uniSpace <- function(formula,
   resp <- unlist(sPoints@data)
   names(resp) <- NULL
   resp <- list(y = resp)
-  names(resp) <- names(sPoints)
+  names(resp) <- nameresp
 
   StackEst <- inla.stack(data = resp, A = list(AEst, 1),
                          effects = list(list(i = 1:nEdges),
@@ -169,7 +170,7 @@ uniSpace <- function(formula,
 
   ### For prediction
   respNA <- list(y = NA)
-  names(respNA) <- names(sPoints)
+  names(respNA) <- nameresp
 
   StackPred <- inla.stack(data = respNA, A = list(APred, 1),
                           effects = list(list(i = 1:nEdges),
@@ -185,14 +186,14 @@ uniSpace <- function(formula,
   if(is.null(offset)){
     forEffect <- paste(colnames(XPred),collapse = "+")
     
-    formule <- formula(paste(names(sPoints) ,
+    formule <- formula(paste(nameresp ,
                              "~ 0 + Intercept +", forEffect,
                              "+ f(i, model=SPDE)"))
   }else{
     forEffect <- paste(colnames(XPred)[colnames(XPred) != offset],
                        collapse = "+")
     
-    formule <- formula(paste(names(sPoints) ,
+    formule <- formula(paste(nameresp ,
                              "~ 0 + Intercept +", forEffect,
                              "+offset(",offset,") + f(i, model=SPDE)"))
   }
