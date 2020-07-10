@@ -141,6 +141,7 @@ ppSpace <- function(formula,
     ### Extract covariate values for model estimation
     locEst <- SpatialPoints(coords = explanaMesh$mesh$loc[,1:2])
     XEst <- extract(Xbrick, locEst)
+    XPred <- XEst
   }else{
     ### Extract covariate values for model estimation
     meshxy <- rbind(explanaMesh$mesh$loc[,1:2],xy)
@@ -175,7 +176,7 @@ ppSpace <- function(formula,
     StackPred <- inla.stack(data = list(y = NA, e = NA),
                             A = list(1, ProjInfer), 
                             effects = list(list(Intercept = 1, 
-                                                X = XEst), 
+                                                X = XPred), 
                                            IDSpace),
                             tag = "pred")
   }else{
