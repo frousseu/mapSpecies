@@ -11,6 +11,7 @@
 #' @param prior.range A vector of length 2, with (range0, Prange) specifying that P(ρ < ρ_0) = p_ρ, where ρ is the spatial range of the random field. If Prange is NA, then range0 is used as a fixed range value. Default is c(0.05, 0.01).
 #' @param prior.sigma A vector of length 2, with (sigma0, Psigma) specifying that P(σ > σ_0) = p_σ, where σ is the marginal standard deviation of the field. If Psigma is NA, then sigma0 is used as a fixed range value.  Default is c(1, 0.01).
 #' @param many Logical. Whether the data in \code{sPoints} is large or not. See details. Default is \code{FALSE}.
+#' @param bias A vector with the name of variables in the model that should be fixed to a given value when doing predictions. These values are used to map the intensities across the study area for a given level of sampling bias. Currently, the maximum of each variable is used as the fixed value. Default is \code{NULL}, meaning no variables are fixed.
 #' @param \dots Arguments passed to \code{inla}
 #'
 #' @details 
@@ -56,6 +57,7 @@ ppSpace <- function(formula,
                     prior.range = c(0.05, 0.01),
                     prior.sigma = c(1, 0.01), 
                     many = FALSE,
+                    bias = NULL,
                     ...){
 
   #==============
@@ -153,6 +155,15 @@ ppSpace <- function(formula,
     ### Extract covariate values for model prediction
     locPred <- SpatialPoints(coords = explanaMesh$mesh$loc[,1:2])
     XPred <- explanaMesh$Xmesh
+  }
+  
+  #==================================================
+  ### Fix predictors that represent bias variables
+  #==================================================
+  if(!is.null(bias)){
+    m <- match(bias, colnames(XPred))
+    v <- apply(XPred[, m, drop=FALSE], 2, max)
+    XPred[, m] <- rep(v, each = nrow(XPred))
   }
   
   #==================================================
