@@ -112,7 +112,7 @@ uniSpace <- function(formula,
   ### Organize X so that it follows the formula
   Xorg <- model.matrix(formula,model.frame(formula,
                                            data = refData,
-                                           na.action = NULL))[,-1]
+                                           na.action = NULL))[,-1,drop=FALSE]
 
   ### Construct a brick out of Xorg
   xyXorg <- cbind(coordinates(explanaMesh$X),Xorg)
@@ -139,7 +139,7 @@ uniSpace <- function(formula,
   
   XPred <- model.matrix(formula,model.frame(formula,
                                             data = prefData,
-                                            na.action = NULL))[,-1]
+                                            na.action = NULL))[,-1,drop=FALSE]
   
   if(!is.null(offset)){
     XPred <- cbind(XPred, explanaMesh$Xmesh[,offset])
