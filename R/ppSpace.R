@@ -244,7 +244,7 @@ ppSpace <- function(formula,
     attributes(model) <- list(formula = formula,
                               sPoints = sPoints,
                               XEst = XEst,
-                              XPred = XEst,
+                              XPred = XPred,
                               mesh = explanaMesh$mesh,
                               Stack = Stack)
   }else{
