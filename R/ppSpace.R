@@ -162,7 +162,7 @@ ppSpace <- function(formula,
   #==================================================
   if(!is.null(bias)){
     m <- match(bias, colnames(XPred))
-    v <- apply(XPred[, m, drop=FALSE], 2, max)
+    v <- apply(XPred[, m, drop=FALSE], 2, max, na.rm = TRUE)
     XPred[, m] <- rep(v, each = nrow(XPred))
   }
   
