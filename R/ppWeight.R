@@ -4,6 +4,7 @@
 #' 
 #' @param sPoly A \code{SpatialPolygons*} object.
 #' @param mesh An \code{inla.mesh} object
+#' @param verbose If \code{TRUE}, prints each iteration.
 #' 
 #' @return 
 #' 
@@ -17,7 +18,7 @@
 #' 
 #' @keywords models
 #' 
-ppWeight <- function(sPoly, mesh){
+ppWeight <- function(sPoly, mesh, verbose = FALSE){
   #-------------------------------------------------
   ### Construct a dual mesh from the triangular mesh
   #-------------------------------------------------
