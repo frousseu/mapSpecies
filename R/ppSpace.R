@@ -12,6 +12,7 @@
 #' @param prior.sigma A vector of length 2, with (sigma0, Psigma) specifying that P(σ > σ_0) = p_σ, where σ is the marginal standard deviation of the field. If Psigma is NA, then sigma0 is used as a fixed range value.  Default is c(1, 0.01).
 #' @param many Logical. Whether the data in \code{sPoints} is large or not. See details. Default is \code{FALSE}.
 #' @param bias A vector with the name of variables in the model that should be fixed to a given value when doing predictions. These values are used to map the intensities across the study area for a given level of sampling bias. Currently, the maximum of each variable is used as the fixed value. Default is \code{NULL}, meaning no variables are fixed.
+#' @param orthoCons Set to \code{TRUE} to force all the variance to go into the fixed effects. Sets constraints to have spatial field orthogonal to predictors. Experimental and currently not working...
 #' @param \dots Arguments passed to \code{inla}
 #'
 #' @details 
@@ -58,6 +59,7 @@ ppSpace <- function(formula,
                     prior.sigma = c(1, 0.01), 
                     many = FALSE,
                     bias = NULL,
+                    orthoCons = FALSE,
                     ...){
 
   #==============
@@ -226,7 +228,17 @@ ppSpace <- function(formula,
   #===============
   ### Build models
   #===============
-  formule <- formula(y ~ 0 + Intercept + X + f(i, model=SPDE))
+  
+  if(orthoCons){
+    # build constraints
+    XX = cbind(rep(1, nrow(XEst)), XEst)
+    Q = qr.Q(qr(XX))
+    AA <- as.matrix(t(Q)%*%ProjInfer)
+    ee <- rep(0, ncol(XX))
+    formule <- formula(y ~ 0 + Intercept + X + f(i, model=SPDE, extraconstr = list(A = AA, e = ee)))
+  }else{
+    formule <- formula(y ~ 0 + Intercept + X + f(i, model=SPDE))
+  }
   
   model <- inla(formule, family = "poisson", 
                 data = inla.stack.data(Stack),
