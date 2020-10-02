@@ -4,7 +4,7 @@
 #' 
 #' @param modelSpace An object of class \code{ppSpace} or of class \code{uniSpace}.
 #' @param dims A vector of length 2 defining the number of pixels to use as rows and columns to define the map.
-#' @param type Either "mean", "sd", "0.025quant", "0.5quant", "0.975quant" or "mode". Defines the map to be drawn.
+#' @param type Either "mean", "sd", "0.025quant", "0.5quant", "0.975quant", "mode" or "space". Defines the map to be drawn. If "space", maps the mean of the spatial field.
 #' @param sPoly A spatial polygon to isolate the region of interest. If none is given, a map is drawn for the entire region covered by the mesh. 
 #' 
 #' @importFrom INLA inla.mesh.projector
@@ -24,7 +24,7 @@
 mapSpace <- function(modelSpace, dims, 
                        type = c("mean", "sd", "0.025quant", 
                                 "0.5quant", "0.975quant",
-                                "mode"), sPoly = NULL){
+                                "mode","space"), sPoly = NULL){
   ### General check
   if(length(type) > 1){
     stop("Only one type should be defined")
@@ -43,13 +43,21 @@ mapSpace <- function(modelSpace, dims,
                                     crs = attributes(modelSpace)$mesh$crs)
   }
   
-  ### Find the mesh edges on which predictions should be made
-  ID <- inla.stack.index(attributes(modelSpace)$Stack, tag="pred")$data
   
-  ### Calculate prediction
-  mapPred <- inla.mesh.project(mapBasis, 
+  if(type=="space"){
+    
+    mapPred <- inla.mesh.project(mapBasis, 
+                                 modelSpace$summary.random[['i']][['mean']])
+  }else{
+  
+    ### Find the mesh edges on which predictions should be made
+    ID <- inla.stack.index(attributes(modelSpace)$Stack, tag="pred")$data
+  
+    ### Calculate prediction
+    mapPred <- inla.mesh.project(mapBasis, 
                                modelSpace$summary.fitted.values[[type]][ID])
   
+  }
   ### Transform map into a raster
   mapRaster <- raster(t(mapPred[,ncol(mapPred):1]),
                       xmn = min(mapBasis$x), xmx = max(mapBasis$x), 
