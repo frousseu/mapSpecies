@@ -32,9 +32,6 @@ summary.ppSpace <- function(object,...){
   # Extract the parameters associated to the explanatory variables
   fixed <- object$summary.fixed
   
-  # Rename the rows
-  rownames(fixed)[-1] <- colnames(attributes(object)$XEst)
-  
   # Extract the parameters associated to the spatial components
   space <- object$summary.hyperpar
   if(!is.null(space)){
