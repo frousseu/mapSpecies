@@ -181,15 +181,15 @@ ppSpace <- function(formula,
     ### Build stack objects
     StackEst <- inla.stack(data = list(y = yPP, e = ePP), 
                            A = list(1, ProjInfer), 
-                           effects = list(list(Intercept = 1, 
-                                               X = XEst),
+                           effects = list(c(list(Intercept = 1), 
+                                               asplit(XEst, 2)),
                                           IDSpace), 
                            tag = "est")
     
     StackPred <- inla.stack(data = list(y = NA, e = NA),
                             A = list(1, ProjInfer), 
-                            effects = list(list(Intercept = 1, 
-                                                X = XPred), 
+                            effects = list(c(list(Intercept = 1), 
+                                                asplit(XPred, 2)), 
                                            IDSpace),
                             tag = "pred")
   }else{
@@ -210,15 +210,15 @@ ppSpace <- function(formula,
     #----------------------
     StackEst <- inla.stack(data = list(y = yPP, e = ePP), 
                            A = list(1, A), 
-                           effects = list(list(Intercept = 1, 
-                                               X = XEst), 
+                           effects = list(c(list(Intercept = 1), 
+                                               asplit(XEst, 2)), 
                                           list(i = 1:nEdges)), 
                            tag = "est")
     
     StackPred <- inla.stack(data = list(y = NA, e = NA),
                                 A = list(1, ProjInter), 
-                                effects = list(list(Intercept = 1, 
-                                                    X = XPred), 
+                                effects = list(c(list(Intercept = 1), 
+                                                    asplit(XPred, 2)), 
                                                list(i = 1:nEdges)),
                                 tag = "pred")
   }
@@ -229,15 +229,19 @@ ppSpace <- function(formula,
   ### Build models
   #===============
   
+  ### Make variables names explicit in formula
+  X <- paste(colnames(XEst),collapse=" + ")
+  fixed <- paste("y ~ 0 + Intercept +",X)
+  
   if(orthoCons){
     # build constraints
     XX = cbind(rep(1, nrow(XEst)), XEst)
     Q = qr.Q(qr(XX))
     AA <- as.matrix(t(Q)%*%ProjInfer)
     ee <- rep(0, ncol(XX))
-    formule <- formula(y ~ 0 + Intercept + X + f(i, model=SPDE, extraconstr = list(A = AA, e = ee)))
+    formule <- formula(paste(fixed,"f(i, model=SPDE, extraconstr = list(A = AA, e = ee))", sep=" + "))
   }else{
-    formule <- formula(y ~ 0 + Intercept + X + f(i, model=SPDE))
+    formule <- formula(paste(fixed,"f(i, model=SPDE)", sep=" + "))
   }
   
   model <- inla(formule, family = "poisson", 
