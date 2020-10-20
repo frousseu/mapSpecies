@@ -48,7 +48,7 @@ ppWeight <- function(sPoly, mesh, verbose = FALSE){
   }
   
   ### Return mesh
-  attributes(weight) <- mesh
+  attributes(weight) <- list(mesh=mesh,dmesh=dmesh)
   
   class(weight) <- "ppWeight"
   
