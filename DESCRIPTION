@@ -15,7 +15,9 @@ Depends:
     raster,
     deldir,
     Matrix,
-    parallel
+    parallel,
+    sf,
+    exactextractr
 RoxygenNote: 6.1.1
 Encoding: UTF-8
 Suggests: 

@@ -79,7 +79,7 @@ ppSpace <- function(formula,
   }
   
   ### Check if the mesh in ppWeight and dataPred are the same
-  if(!identical(attributes(ppWeight)$graph, explanaMesh$mesh$graph)){
+  if(!identical(attributes(ppWeight)$mesh$graph, explanaMesh$mesh$graph)){
     stop("'ppWeight' and 'explanaMesh' were constructed using different mesh")
   }
   
