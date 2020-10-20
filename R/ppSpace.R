@@ -68,6 +68,7 @@ ppSpace <- function(formula,
                     prior.sigma = c(1, 0.01), 
                     many = FALSE,
                     fix = NULL,
+                    sboffset = NULL,
                     orthoCons = FALSE,
                     ...){
 
