@@ -12,12 +12,15 @@
 #' @param prior.sigma A vector of length 2, with (sigma0, Psigma) specifying that P(σ > σ_0) = p_σ, where σ is the marginal standard deviation of the field. If Psigma is NA, then sigma0 is used as a fixed range value.  Default is c(1, 0.01).
 #' @param many Logical. Whether the data in \code{sPoints} is large or not. See details. Default is \code{FALSE}.
 #' @param fix A vector with the name of variables in the model that should be fixed to a given value when doing predictions. These values are used to map the intensities across the study area for a given value. Currently, the maximum of each variable is used as the fixed value, but it should be made more flexible in the future for example for playing more easily with climate change scenarios. Default is \code{NULL}, meaning no variables are fixed.
+#' @param sboffset A character string with the name of the variable in the raster stack that should be used as an offset to scaled down the integration weights according to the level of effort across the study region. See details for further explanations. Default is \code{NULL}.
 #' @param orthoCons Set to \code{TRUE} to force all the variance to go into the fixed effects. Sets constraints to have spatial field orthogonal to predictors. Experimental and currently not working...
 #' @param \dots Arguments passed to \code{inla}
 #'
 #' @details 
 #' 
-#' If the argument \code{many = TRUE}, the estimation and the prediction will be carried out solely at the mesh edges, whereas when \code{many = FALSE} the estimation will be carried out at the mesh edges and at the sampled location. When the number of samples is very large (e.g. tens of thousands of samples or more) using \code{many = TRUE} can be much more computationally efficient. However, there is a precision trade-off. When \code{many = TRUE}, each sample is associated to an edge and the model is constructed using the number of samples associated to an edge as an importance value. In doing so, some spatial precision is lost at the expense of speed. 
+#' If the argument \code{many = TRUE}, the estimation and the prediction will be carried out solely at the mesh edges, whereas when \code{many = FALSE} the estimation will be carried out at the mesh edges and at the sampled location. When the number of samples is very large (e.g. tens of thousands of samples or more) using \code{many = TRUE} can be much more computationally efficient. However, there is a precision trade-off. When \code{many = TRUE}, each sample is associated to an edge and the model is constructed using the number of samples associated to an edge as an importance value. In doing so, some spatial precision is lost at the expense of speed.
+#' 
+#'  The sampling bias offset argument \code{sboffset} is used to scaled down the weights obtained from the dual mesh using a variable representing effort. This variable has to be a layer in the raster stack given for the predictors Specifically, values in the raster layer given will be summed for each polygon in the dual mesh to summarize the effort for each polygon. The extraction is made exact by using the exactextractr package. Once summed, values for each polygon (e) are rescaled between 0 and 1 and multiplied with the original weights (e/max(e) * weights) to adjust the weights in the integration mesh. This is an adaptation from Simpson et al. (2016).
 #'
 #' @return
 #' 
@@ -31,6 +34,10 @@
 #'	  \item{\code{XPred}}{A matrix with all the explanatory variables used to construct the model. If there were factors in the original set of explanatory variables \code{X}, in \code{XPred}, they were decomposed into dummy variables. The values in \code{XPred} were gathered at the mesh edges. When \code{many = TRUE}, the values in \code{XPred} are exactly the same as the values in \code{XEst}}
 #'	  \item{\code{mesh}}{An object of class \code{inla.mesh}. It is the mesh used to construct the model.}
 #'	  \item{\code{Stack}}{An object of class \code{inla.data.stack}. It is a stack object constructed internally.}
+#'
+#' @references 
+#' 
+#' Simpson, D. Illian, J. B., Lindgren, F. Sørbye, S. H. and Rue, H. 2016. Going off grid: computationally efficient inference for log-Gaussian Cox processes. Biometrika, 103(1): 49-70 \url{https://doi.org/10.1093/biomet/asv064}
 #'
 #' @importFrom sp coordinates
 #' @importFrom raster rasterFromXYZ
@@ -46,6 +53,8 @@
 #' @importFrom Matrix Diagonal
 #' @importFrom stats model.matrix
 #' @importFrom stats model.frame
+#' @importFrom sf st_as_sf
+#' @importFrom exactextractr exact_extract
 #' 
 #' @export
 #' 
@@ -89,6 +98,20 @@ ppSpace <- function(formula,
                               prior.range=prior.range,
                               prior.sigma=prior.sigma)
 
+  #========================================================
+  ### Rescale weights if sampling bias offset is included
+  #========================================================
+  
+  if(!is.null(sboffset)){
+    e <- exact_extract(explana$X[[sboffset]], 
+                       st_as_sf(attributes(ppWeight)$dmesh), 
+                       fun = function(values, coverage){
+                         sum(values * coverage, na.rm = TRUE)
+                       },progress = FALSE)
+    ppWeight <- ppWeight * (e/max(e))
+  }
+  
+  
   #==========================
   ### Define response objects
   #==========================
