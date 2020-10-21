@@ -20,7 +20,7 @@
 #' 
 #' If the argument \code{many = TRUE}, the estimation and the prediction will be carried out solely at the mesh edges, whereas when \code{many = FALSE} the estimation will be carried out at the mesh edges and at the sampled location. When the number of samples is very large (e.g. tens of thousands of samples or more) using \code{many = TRUE} can be much more computationally efficient. However, there is a precision trade-off. When \code{many = TRUE}, each sample is associated to an edge and the model is constructed using the number of samples associated to an edge as an importance value. In doing so, some spatial precision is lost at the expense of speed.
 #' 
-#'  The sampling bias offset argument \code{sboffset} is used to scaled down the weights obtained from the dual mesh using a variable representing effort. This variable has to be a layer in the raster stack given for the predictors Specifically, values in the raster layer given will be summed for each polygon in the dual mesh to summarize the effort for each polygon. The extraction is made exact by using the \href{https://CRAN.R-project.org/package=exactextractr}{exactextractr} package. Once summed, values for each polygon (e) are rescaled between 0 and 1 and multiplied with the original weights (e/max(e) * weights) to adjust the weights in the integration mesh. This is an adaptation from Simpson et al. (2016).
+#'  The sampling bias offset argument \code{sboffset} is used to scaled down the weights (w) obtained from the dual mesh using a variable representing effort. This variable has to be a layer in the raster stack given for the predictors Specifically, values in the raster layer given will be summed for each polygon in the dual mesh to summarize the effort for each polygon. The extraction is made exact by using the \href{https://CRAN.R-project.org/package=exactextractr}{exactextractr} package. Once summed, values for each polygon (e) are 1) scaled with the weights, 2) rescaled between 0 and 1 and 3) multiplied with the original weights ((e/w) / max(e/w)) * w to adjust the weights in the integration mesh. This is an adaptation from Simpson et al. (2016). Note that polygons from the dual mesh that are partially overlapping the region of interest will get the weight associated with their area overlapping the study region and the effort considered is the effort associated with this overlapping area.
 #'
 #' @return
 #' 
@@ -29,7 +29,7 @@
 #' In addition, it includes a series of attributes:
 #' 
 #'	  \item{\code{formula}}{The formula used to construct the model}
-#'	  \item{\code{sPointsDF}}{A \code{SpatialPointDataFrame} object that includes the sample location and associated data of the modelled species.}
+#'	  \item{\code{sPoints}}{A \code{SpatialPointDataFrame} object that includes the sample location and associated data of the modelled species.}
 #'	  \item{\code{XEst}}{A matrix with all the explanatory variables used to construct the model. If there were factors in the original set of explanatory variables \code{X}, in \code{XEst}, they were decomposed into dummy variables. The values in \code{XEst} are the one from the sampled location.}
 #'	  \item{\code{XPred}}{A matrix with all the explanatory variables used to construct the model. If there were factors in the original set of explanatory variables \code{X}, in \code{XPred}, they were decomposed into dummy variables. The values in \code{XPred} were gathered at the mesh edges. When \code{many = TRUE}, the values in \code{XPred} are exactly the same as the values in \code{XEst}}
 #'	  \item{\code{mesh}}{An object of class \code{inla.mesh}. It is the mesh used to construct the model.}
@@ -104,12 +104,14 @@ ppSpace <- function(formula,
   #========================================================
   
   if(!is.null(sboffset)){
+    g <- gIntersection(explanaMesh$sPoly,attributes(ppWeight)$dmesh,byid=TRUE)
     e <- exact_extract(explana$X[[sboffset]], 
                        st_as_sf(attributes(ppWeight)$dmesh), 
                        fun = function(values, coverage){
                          sum(values * coverage, na.rm = TRUE)
                        },progress = FALSE)
-    ppWeight <- ppWeight * (e/max(e))
+    k <- ppWeight > 0
+    ppWeight[k] <- ppWeight[k] * ((e/ppWeight[k])/max(e/ppWeight[k]))
   }
   
   
