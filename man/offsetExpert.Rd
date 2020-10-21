@@ -4,13 +4,20 @@
 \alias{offsetExpert}
 \title{Build a raster of expert knowledge prior information}
 \usage{
-offsetExpert(expert, sPointDF, raster, family, link, iniParam = c(upper =
-  1, lower = 1, rate = 1, shift = 1, skew = 1), ...)
+offsetExpert(
+  expert,
+  sPoints,
+  raster,
+  family,
+  link,
+  iniParam = c(upper = 1, lower = 1, rate = 1, shift = 1, skew = 1),
+  ...
+)
 }
 \arguments{
 \item{expert}{A \code{\link[sp]{SpatialPolygons}} or a \code{\link[sp]{SpatialPolygonsDataFrame}} defining the expert map.}
 
-\item{sPointDF}{A \code{\link[sp]{SpatialPointsDataFrame}} defining the sampled location with a single variable.}
+\item{sPoints}{A \code{\link[sp]{SpatialPointsDataFrame}} defining the sampled location with a single variable.}
 
 \item{raster}{An object of class \code{RasterLayer}.}
 

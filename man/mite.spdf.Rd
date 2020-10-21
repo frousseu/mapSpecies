@@ -4,7 +4,9 @@
 \name{mite.spdf}
 \alias{mite.spdf}
 \title{Mite data}
-\format{An object of class \code{SpatialPointsDataFrame} with 70 rows and 35 columns.}
+\format{
+An object of class \code{SpatialPointsDataFrame} with 70 rows and 35 columns.
+}
 \usage{
 data(mite.spdf)
 }

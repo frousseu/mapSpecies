@@ -4,9 +4,18 @@
 \alias{ppSpaceTimeLarge}
 \title{Spatio-temporal point process model for large data}
 \usage{
-ppSpaceTimeLarge(formula, y, ppWeight, explanaMesh, meshTime, smooth = 2,
-  prior.range = c(0.05, 0.01), prior.sigma = c(1, 0.01),
-  prior.pccor = c(0.7, 0.7), ...)
+ppSpaceTimeLarge(
+  formula,
+  y,
+  ppWeight,
+  explanaMesh,
+  meshTime,
+  smooth = 2,
+  prior.range = c(0.05, 0.01),
+  prior.sigma = c(1, 0.01),
+  prior.pccor = c(0.7, 0.7),
+  ...
+)
 }
 \arguments{
 \item{formula}{A formula that only relates the response \code{y} and some (or all) of the explanatory variables \code{X}. A paricularity of the is formula is that the response has to be defined as \code{y}.}

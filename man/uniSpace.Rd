@@ -4,14 +4,23 @@
 \alias{uniSpace}
 \title{Univariate spatial model}
 \usage{
-uniSpace(formula, sPointsDF, explanaMesh, offset = NULL, family = NULL,
-  link = NULL, smooth = 2, prior.range = c(0.05, 0.01),
-  prior.sigma = c(1, 0.01), ...)
+uniSpace(
+  formula,
+  sPoints,
+  explanaMesh,
+  offset = NULL,
+  family = NULL,
+  link = NULL,
+  smooth = 2,
+  prior.range = c(0.05, 0.01),
+  prior.sigma = c(1, 0.01),
+  ...
+)
 }
 \arguments{
-\item{formula}{A formula that relates the response and some (or all) of the explanatory variables \code{X}. The name of the response variable is the name of the variable in \code{sPointsDF}.}
+\item{formula}{A formula that relates the response and some (or all) of the explanatory variables \code{X}. The name of the response variable is the name of the variable in \code{sPoints}.}
 
-\item{sPointsDF}{A SpatialPointsDataFrame with a vector of 0 and 1 in the data.frame part \code{stack} (or \code{brick}) combining all of the explanatory variables to consider.}
+\item{sPoints}{A \code{SpatialPointsDataFrame} with the response variable.}
 
 \item{explanaMesh}{An object of class \code{explanaMesh}}
 
@@ -35,7 +44,7 @@ An object of class \code{uniSpace} that includes a model output, which is the mo
 In addition, it includes a series of attributes:
 
   \item{\code{formula}}{The formula used to construct the model}
-  \item{\code{sPointsDF}}{A \code{SpatialPointDataFrame} object that includes the sample location and associated data of the modelled species.}
+  \item{\code{sPoints}}{A \code{SpatialPointDataFrame} object that includes the sample location and associated data of the modelled species.}
   \item{\code{XEst}}{A matrix with all the explanatory variables used to construct the model. If there were factors in the original set of explanatory variables \code{X}, in \code{XEst}, they were decomposed into dummy variables. The values in \code{XEst} are the one from the sampled location.}
   \item{\code{XPred}}{A matrix with all the explanatory variables used to construct the model. If there were factors in the original set of explanatory variables \code{X}, in \code{XPred}, they were decomposed into dummy variables. The values in \code{XPred} were gathered at the mesh edges.}
   \item{\code{mesh}}{An object of class \code{inla.mesh}. It is the mesh used to construct the model.}

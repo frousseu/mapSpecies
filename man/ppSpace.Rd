@@ -4,9 +4,20 @@
 \alias{ppSpace}
 \title{Spatial point process model}
 \usage{
-ppSpace(formula, sPoints, ppWeight, explanaMesh, smooth = 2,
-  prior.range = c(0.05, 0.01), prior.sigma = c(1, 0.01),
-  many = FALSE, ...)
+ppSpace(
+  formula,
+  sPoints,
+  ppWeight,
+  explanaMesh,
+  smooth = 2,
+  prior.range = c(0.05, 0.01),
+  prior.sigma = c(1, 0.01),
+  many = FALSE,
+  fix = NULL,
+  sboffset = NULL,
+  orthoCons = FALSE,
+  ...
+)
 }
 \arguments{
 \item{formula}{A formula that only relates the response \code{y} and some (or all) of the explanatory variables \code{X}. A paricularity of the is formula is that the response has to be defined as \code{y}.}
@@ -24,6 +35,12 @@ ppSpace(formula, sPoints, ppWeight, explanaMesh, smooth = 2,
 \item{prior.sigma}{A vector of length 2, with (sigma0, Psigma) specifying that P(σ > σ_0) = p_σ, where σ is the marginal standard deviation of the field. If Psigma is NA, then sigma0 is used as a fixed range value.  Default is c(1, 0.01).}
 
 \item{many}{Logical. Whether the data in \code{sPoints} is large or not. See details. Default is \code{FALSE}.}
+
+\item{fix}{A vector with the name of variables in the model that should be fixed to a given value when doing predictions. These values are used to map the intensities across the study area for a given value. Currently, the maximum of each variable is used as the fixed value, but it should be made more flexible in the future for example for playing more easily with climate change scenarios. Default is \code{NULL}, meaning no variables are fixed.}
+
+\item{sboffset}{A character string with the name of the variable in the raster stack that should be used as an offset to scaled down the integration weights according to the level of effort across the study region. See details for further explanations. Default is \code{NULL}.}
+
+\item{orthoCons}{Set to \code{TRUE} to force all the variance to go into the fixed effects. Sets constraints to have spatial field orthogonal to predictors. Experimental and currently not working...}
 
 \item{\dots}{Arguments passed to \code{inla}}
 }
@@ -43,6 +60,11 @@ In addition, it includes a series of attributes:
 Spatial point process model using INLA. This function is essentially a specialized wrapper over \code{inla}
 }
 \details{
-If the argument \code{many = TRUE}, the etimation and the prediction will be carried out solely at the mesh edges, whereas when \code{many = FALSE} the estimation will be carried out at the mesh edges and at the sampled location. When the number of samples is very large (e.g. tens of thousands of samples or more) using \code{many = TRUE} can be much more computationally efficient. However, there is a precision trade-off. When \code{many = TRUE}, each sample is associated to an edge and the model is constructed using the number of samples associated to an edge as an importance value. In doing so, some spatial precision is lost at the expense of speed.
+If the argument \code{many = TRUE}, the estimation and the prediction will be carried out solely at the mesh edges, whereas when \code{many = FALSE} the estimation will be carried out at the mesh edges and at the sampled location. When the number of samples is very large (e.g. tens of thousands of samples or more) using \code{many = TRUE} can be much more computationally efficient. However, there is a precision trade-off. When \code{many = TRUE}, each sample is associated to an edge and the model is constructed using the number of samples associated to an edge as an importance value. In doing so, some spatial precision is lost at the expense of speed.
+
+ The sampling bias offset argument \code{sboffset} is used to scaled down the weights obtained from the dual mesh using a variable representing effort. This variable has to be a layer in the raster stack given for the predictors Specifically, values in the raster layer given will be summed for each polygon in the dual mesh to summarize the effort for each polygon. The extraction is made exact by using the \href{https://CRAN.R-project.org/package=exactextractr}{exactextractr} package. Once summed, values for each polygon (e) are rescaled between 0 and 1 and multiplied with the original weights (e/max(e) * weights) to adjust the weights in the integration mesh. This is an adaptation from Simpson et al. (2016).
+}
+\references{
+Simpson, D. Illian, J. B., Lindgren, F. Sørbye, S. H. and Rue, H. 2016. Going off grid: computationally efficient inference for log-Gaussian Cox processes. Biometrika, 103(1): 49-70 \url{https://doi.org/10.1093/biomet/asv064}
 }
 \keyword{models}

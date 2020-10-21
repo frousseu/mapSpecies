@@ -4,7 +4,9 @@
 \name{mite.envRaster}
 \alias{mite.envRaster}
 \title{Mite data}
-\format{An object of class \code{RasterStack} of dimension 2002 x 520 x 5.}
+\format{
+An object of class \code{RasterStack} of dimension 2002 x 520 x 5.
+}
 \usage{
 data(mite.envRaster)
 }

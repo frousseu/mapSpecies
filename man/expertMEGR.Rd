@@ -4,7 +4,9 @@
 \name{expertMEGR}
 \alias{expertMEGR}
 \title{Expert map for pseudospecies MEGR}
-\format{An object of class \code{SpatialPolygons} of length 1.}
+\format{
+An object of class \code{SpatialPolygons} of length 1.
+}
 \usage{
 data(expertMEGR)
 }

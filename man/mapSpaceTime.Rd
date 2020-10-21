@@ -4,8 +4,12 @@
 \alias{mapSpaceTime}
 \title{Construct maps for spatial point process models}
 \usage{
-mapSpaceTime(spaceTimeModel, dims, type = c("mean", "sd", "0.025quant",
-  "0.5quant", "0.975quant", "mode"), sPoly = NULL)
+mapSpaceTime(
+  spaceTimeModel,
+  dims,
+  type = c("mean", "sd", "0.025quant", "0.5quant", "0.975quant", "mode"),
+  sPoly = NULL
+)
 }
 \arguments{
 \item{spaceTimeModel}{An object of class \code{spatialTimePP}.}
