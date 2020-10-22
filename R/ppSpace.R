@@ -104,9 +104,9 @@ ppSpace <- function(formula,
   #========================================================
   
   if(!is.null(sboffset)){
-    g <- gIntersection(explanaMesh$sPoly,attributes(ppWeight)$dmesh,byid=TRUE)
+    polys <- gIntersection(explanaMesh$sPoly,attributes(ppWeight)$dmesh,byid=TRUE)
     e <- exact_extract(explana$X[[sboffset]], 
-                       st_as_sf(attributes(ppWeight)$dmesh), 
+                       st_as_sf(polys), 
                        fun = function(values, coverage){
                          sum(values * coverage, na.rm = TRUE)
                        },progress = FALSE)
