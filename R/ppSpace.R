@@ -169,9 +169,20 @@ ppSpace <- function(formula,
   
   if(many){
     ### Extract covariate values for model estimation
-    locEst <- SpatialPoints(coords = explanaMesh$mesh$loc[,1:2])
-    XEst <- extract(Xbrick, locEst)
+    #locEst <- SpatialPoints(coords = explanaMesh$mesh$loc[,1:2])
+    #XEst <- extract(Xbrick, locEst)
+    #XPred <- XEst
+    
+    ex <- exact_extract(Xbrick, 
+                        st_as_sf(attributes(ppWeight)$dmesh), 
+                        fun = function(values, coverage_fraction){
+                          colSums(as.matrix(values) * coverage_fraction, na.rm = TRUE)/sum(coverage_fraction)
+                        }, progress = FALSE)
+    ex <- t(ex)
+    ex[is.nan(ex)] <- NA
+    XEst <- ex
     XPred <- XEst
+    
   }else{
     ### Extract covariate values for model estimation
     meshxy <- rbind(explanaMesh$mesh$loc[,1:2],xy)
